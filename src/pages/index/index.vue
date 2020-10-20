@@ -1,126 +1,97 @@
 <template>
-  <div @click="clickHandle">
-
-    <div class="userinfo" @click="bindViewTap">
-      <img class="userinfo-avatar" v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" background-size="cover" />
-      <img class="userinfo-avatar" src="/static/images/user.png" background-size="cover" />
-
-      <div class="userinfo-nickname">
-        <card :text="userInfo.nickName"></card>
-      </div>
-    </div>
-
-    <div class="usermotto">
-      <div class="user-motto">
-        <card :text="motto"></card>
-      </div>
-    </div>
-
-    <form class="form-container">
-      <input type="text" class="form-control" :value="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model="motto" placeholder="v-model" />
-      <input type="text" class="form-control" v-model.lazy="motto" placeholder="v-model.lazy" />
-    </form>
-
-    <a href="/pages/counter/main" class="counter">去往Vuex示例页面</a>
-
-    <div class="all">
-        <div class="left">
-        </div>
-        <div class="right">
-        </div>
+  <div class="indexContainer">
+    <img v-if="isShow" class="index_img" :src="userInfo.avatarUrl" alt="" />
+    <Button
+      class="btn"
+      v-if="!isShow"
+      open-type="getUserInfo"
+      @getuserinfo="getUserInfo"
+      >获取信息</Button
+    >
+    <p class="userName">hello mpvue {{ userInfo.nickName }}</p>
+    <div @tap="toDetail" class="goStudy">
+      <p>开启小程序之旅</p>
     </div>
   </div>
 </template>
 
 <script>
-import card from '@/components/card'
-
 export default {
-  data () {
+  data() {
     return {
-      motto: 'Hello miniprograme',
-      userInfo: {
-        nickName: 'mpvue',
-        avatarUrl: 'http://mpvue.com/assets/logo.png'
-      }
-    }
+      userInfo: {},
+      isShow: false,
+    };
   },
-
-  components: {
-    card
+  onLoad() {
+    console.log("---onLoad--");
   },
-
+  beforeMount() {
+    this.handelGetUserInfo();
+  },
   methods: {
-    bindViewTap () {
-      const url = '../logs/main'
-      if (mpvuePlatform === 'wx') {
-        mpvue.switchTab({ url })
-      } else {
-        mpvue.navigateTo({ url })
+    handelGetUserInfo: function () {
+      wx.getUserInfo({
+        success: (data) => {
+          this.userInfo = data.userInfo;
+        },
+        fail: (error) => {
+          console.log(error);
+        },
+      });
+    },
+    getUserInfo: function (data) {
+      if (data.mp.detail.rawData) {
+        console.log("wo shifou");
+        this.handelGetUserInfo();
+        this.isShow = true;
       }
     },
-    clickHandle (ev) {
-      console.log('clickHandle:', ev)
-      // throw {message: 'custom test'}
-    }
+    toDetail() {
+      wx.navigateTo({
+        url: "/pages/list/main",
+      });
+    },
   },
-
-  created () {
-    // let app = getApp()
-  }
-}
+};
 </script>
 
-<style scoped>
-.userinfo {
+<style>
+page {
+  background: chartreuse;
+}
+.indexContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.index_img {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 100rpx;
+  margin: 100rpx 0;
 }
-
-.userinfo-nickname {
-  color: #aaa;
+.userName {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin: 100rpx 0;
 }
-
-.usermotto {
-  margin-top: 150px;
+.goStudy {
+  width: 220rpx;
+  height: 80rpx;
+  border: 1px solid #eee;
+  font-size: 24rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  line-height: 80rpx;
 }
-
-.form-control {
-  display: block;
-  padding: 0 12px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-.all{
-  width:7.5rem;
-  height:1rem;
-  background-color:blue;
-}
-.all:after{
-  display:block;
-  content:'';
-  clear:both;
-}
-.left{
-  float:left;
-  width:3rem;
-  height:1rem;
-  background-color:red;
-}
-
-.right{
-  float:left;
-  width:4.5rem;
-  height:1rem;
-  background-color:green;
+.btn {
+  width: 300rpx;
+  height: 300rpx;
+  border-radius: 150rpx;
+  margin: 50rpx 0;
+  line-height: 300rpx;
+  text-align: center;
+  font-size: 26rpx;
 }
 </style>
